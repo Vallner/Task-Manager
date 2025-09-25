@@ -78,6 +78,21 @@ class MainViewModel: ObservableObject {
         selectedDate =  calendar.date(byAdding: .day, value: 7, to: selectedDate)!
         weekend = daysOfWeek
     }
+    func returnSelectedMonth() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMMM"
+        return dateFormatter.string(from: selectedDate)
+    }
+    func returnSelectedYear() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy"
+        return dateFormatter.string(from: selectedDate)
+    }
+    func returnSelectedDayNumber() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd"
+        return dateFormatter.string(from: selectedDate)
+    }
     init() {
         getWeekDays(to: Date())
     }

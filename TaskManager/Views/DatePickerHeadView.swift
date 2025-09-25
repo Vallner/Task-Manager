@@ -15,12 +15,17 @@ struct DatePickerHeadView: View {
         self.viewModel = viewModel
         self.weekend = viewModel.weekend
     }
-    
     var body: some View {
-        
         VStack{
-//            ScrollView(.horizontal, showsIndicators: false){
-                HStack(alignment: .center,spacing: 20){
+            HStack{
+                VStack(alignment: .leading){
+                    Text("\(viewModel.returnSelectedYear())")
+                        .font(.system(size: 30, weight: .medium, design: .default))
+                    Text("\(viewModel.returnSelectedMonth()) \(viewModel.returnSelectedDayNumber())")
+                }
+                Spacer()
+            }
+            HStack{
                     ForEach(weekend,id: \.self){ weekDay in
                         VStack{
                             Text(weekDay.name)
@@ -32,15 +37,22 @@ struct DatePickerHeadView: View {
                                 .background( Calendar.current.isDate(weekDay.dateValue, inSameDayAs: viewModel.selectedDate) ? Color.blue : Color.white)
                                 .foregroundStyle(Calendar.current.isDate(weekDay.dateValue, inSameDayAs: viewModel.selectedDate) ? Color.white : Color.black)
                                 .clipShape(Circle())
-                                .padding(.bottom)
                                 .onTapGesture {
-                                    withAnimation(.snappy){
+                                    withAnimation(.linear(duration: 0.1)){
                                         viewModel.selectedDate = weekDay.dateValue
                                     }
                                 }
+                                .background{
+                                    if Calendar.current.isDate(weekDay.dateValue, inSameDayAs: viewModel.date) {
+                                        Circle()
+                                            .fill(Color.blue)
+                                            .frame(width: 5, height: 5)
+                                            .offset(x: 0, y: 30)
+                                    }
+                                }
                         }
+                        .frame(maxWidth: .infinity)
                     }
-//                }
                 }
             .offset(x: offset.width )
             .gesture(
@@ -53,15 +65,12 @@ struct DatePickerHeadView: View {
                         
                         if offset.width > 0 {
                             viewModel.getPreviousWeek()
-                            
                         }
                         else {
                             viewModel.getNextsWeek()
                         }
                         offset = .zero
-                       
                         print("done")
-                        
                     }
             )
             .animation(.spring(),value: offset)

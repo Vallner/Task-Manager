@@ -18,8 +18,11 @@ struct MainView: View {
     @State var showTaskCreationView: Bool = false
     var body: some View {
         NavigationView {
+            
             VStack {
                 DatePickerHeadView(viewModel: viewModel)
+                    .padding(.horizontal)
+                    .padding(.bottom)
                 List {
                     ForEach(taskItems, id: \.id) { taskItem in
                         TaskCellView(taskItem)
@@ -27,7 +30,6 @@ struct MainView: View {
                     .onDelete { IndexSet in
                             for index in IndexSet {
                                 viewContext.delete(taskItems[index])
-                            
                             do {
                                 try viewContext.save()
                             } catch { }
@@ -38,7 +40,7 @@ struct MainView: View {
                 .listRowSpacing(0)
                 .searchable(text: $searchText, prompt: "search..." )
                 .scrollContentBackground(.hidden)
-                .navigationTitle("Tasks")
+                
                 .toolbar{
                     ToolbarItem(placement: .topBarTrailing){
                         Menu{
@@ -86,6 +88,7 @@ struct MainView: View {
 
            
         }
+        
     }
 }
 

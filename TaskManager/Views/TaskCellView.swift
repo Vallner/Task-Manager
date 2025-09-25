@@ -14,7 +14,7 @@ struct TaskCellView: View {
     }
     let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateFormat = "dd.MM.yyyy"
+        formatter.dateFormat = "HH:mm"
         return formatter
     }()
     var body: some View {
@@ -28,7 +28,7 @@ struct TaskCellView: View {
                     .lineLimit(1)
             }
             Spacer()
-            Text("Estimated date:\(dateFormatter.string(from: task.date ?? Date()))")
+            Text("Estimated time: \(dateFormatter.string(from: task.date ?? Date()))")
                 .font(.system(size: 11, weight: .light , design: .monospaced))
             
         }

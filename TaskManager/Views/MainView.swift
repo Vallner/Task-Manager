@@ -16,16 +16,29 @@ struct MainView: View {
                   sortDescriptors: [])
     var taskItems: FetchedResults<TaskItem>
     @State var showTaskCreationView: Bool = false
+    @State var showTaskEditorView: Bool = false
+    @State var showDetailedDatePicker = false
     var body: some View {
         NavigationView {
             
             VStack {
-                DatePickerHeadView(viewModel: viewModel)
-                    .padding(.horizontal)
-                    .padding(.bottom)
+                if showDetailedDatePicker {
+                    DatePicker("Choose a date", selection: $viewModel.selectedDate)
+                        .datePickerStyle(.graphical)
+                }else{
+                    DatePickerHeadView(viewModel: viewModel)
+                        .padding(.horizontal)
+                        .padding(.bottom, 15)
+                        .background(Color.cyan.opacity(0.1))
+                }
                 List {
                     ForEach(taskItems, id: \.id) { taskItem in
                         TaskCellView(taskItem)
+                            .onTapGesture {
+                                viewModel.taskToEdit = taskItem
+                                showTaskEditorView.toggle()
+                            }
+                          
                     }
                     .onDelete { IndexSet in
                             for index in IndexSet {
@@ -40,8 +53,32 @@ struct MainView: View {
                 .listRowSpacing(0)
                 .searchable(text: $searchText, prompt: "search..." )
                 .scrollContentBackground(.hidden)
-                
+
                 .toolbar{
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button{
+                            withAnimation{
+                                showDetailedDatePicker.toggle()
+                                viewModel.getWeekDays(to: viewModel.selectedDate)
+                            }
+                        }label:{
+                            if showDetailedDatePicker{
+                                Text("Cancel")
+                                    .font(.system(size:20))
+                                    .foregroundStyle(.red)
+                            } else {
+                                VStack(alignment: .leading){
+                                    Text(viewModel.returnSelectedYear())
+                                        .font(.system(size:25,weight: .bold))
+                                        .foregroundStyle(.yearFont)
+                                    Text("\(viewModel.returnSelectedMonth()) \(viewModel.returnSelectedDayNumber())")
+                                        .font(.system(size:15))
+                                        .foregroundStyle(Color.gray)
+                                        
+                                }
+                            }
+                        }
+                    }
                     ToolbarItem(placement: .topBarTrailing){
                         Menu{
                             Button("Date") {
@@ -67,7 +104,12 @@ struct MainView: View {
                     }
                 }
                 .sheet(isPresented: $showTaskCreationView){
-                    TaskCreationView(estimatedDate: viewModel.selectedDate)
+                    TaskCreationView(title: "", description: "",estimatedDate: viewModel.selectedDate)
+                        .environment(\.managedObjectContext, viewContext)
+                        
+                }
+                .sheet(isPresented: $showTaskEditorView){
+                    TaskCreationView(viewModel.taskToEdit!)
                         .environment(\.managedObjectContext, viewContext)
                         
                 }

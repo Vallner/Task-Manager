@@ -10,28 +10,26 @@ import SwiftUI
 struct DatePickerHeadView: View {
     @ObservedObject var viewModel:MainViewModel
     var weekend: [WeekDay]
+
     @State private var offset = CGSize.zero
     init(viewModel:MainViewModel) {
         self.viewModel = viewModel
-        self.weekend = viewModel.weekend
+         self.weekend = viewModel.weekend
     }
     var body: some View {
-        VStack{
+        VStack{           
             HStack{
-                VStack(alignment: .leading){
-                    Text("\(viewModel.returnSelectedYear())")
-                        .font(.system(size: 30, weight: .medium, design: .default))
-                    Text("\(viewModel.returnSelectedMonth()) \(viewModel.returnSelectedDayNumber())")
-                }
-                Spacer()
-            }
-            HStack{
+                Image(systemName: "chevron.backward")
+                    .onTapGesture {
+                        withAnimation(.snappy(duration: 0.2)){
+                            viewModel.getPreviousWeek()
+                        }
+                    }
                     ForEach(weekend,id: \.self){ weekDay in
-                        VStack{
-                            Text(weekDay.name)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                            
+                            VStack{
+                                Text(weekDay.name)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
                             Text("\(weekDay.dateName)")
                                 .frame(width: 40, height: 40)
                                 .background( Calendar.current.isDate(weekDay.dateValue, inSameDayAs: viewModel.selectedDate) ? Color.blue : Color.white)
@@ -50,31 +48,41 @@ struct DatePickerHeadView: View {
                                             .offset(x: 0, y: 30)
                                     }
                                 }
+                                .offset(x:offset.width / 10)
                         }
                         .frame(maxWidth: .infinity)
                     }
+                Image(systemName: "chevron.forward")
+                    .onTapGesture {
+                        withAnimation(.snappy(duration: 0.2)){
+                            viewModel.getNextsWeek()
+                        }     
+                    }
                 }
-            .offset(x: offset.width )
+            .transition(.slide)
             .gesture(
                 DragGesture()
                     .onChanged{ value in
                         offset = value.translation
                     }
-                    .onEnded { _ in
+                    .onEnded { value in
                         print(offset.width)
-                        
-                        if offset.width > 0 {
-                            viewModel.getPreviousWeek()
+                        withAnimation(.snappy(duration: 0.2)){
+                            if value.translation.width > 0 {
+                                viewModel.getPreviousWeek()
+                            }
+                            else {
+                                viewModel.getNextsWeek()
+                            }
                         }
-                        else {
-                            viewModel.getNextsWeek()
-                        }
+                       
                         offset = .zero
                         print("done")
                     }
             )
             .animation(.spring(),value: offset)
         }
+
     }
 
 }

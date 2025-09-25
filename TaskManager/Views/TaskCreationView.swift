@@ -10,10 +10,12 @@ import SwiftUI
 struct TaskCreationView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.managedObjectContext) private var viewContext
-    @State var title = ""
-    @State var description = ""
+    var task: TaskItem?
+    @State var title: String
+    @State var description:String
     @State var estimatedDate:Date
-    @State var priority = 0
+    @State var priority: Int = 0
+   
     var body: some View {
         VStack(alignment: .leading){
             HStack{
@@ -25,6 +27,16 @@ struct TaskCreationView: View {
                 }
                 Spacer()
                 Button{
+                    guard task == nil else {
+                        task?.title = title
+                        task?.date = estimatedDate
+                        task?.details = description
+                        task?.isDone = false
+                        task?.priority = Int16(priority)
+                        try? viewContext.save()
+                        dismiss()
+                        return
+                    }
                     let newTask = TaskItem(context: viewContext)
                     newTask.title = title
                     newTask.details = description
@@ -42,26 +54,50 @@ struct TaskCreationView: View {
             Text("Title")
                 .font(.title)
                 .fontWeight(.bold)
-            TextField("Enter task title", text: $title)
-                .padding(.horizontal)
-            DatePicker("Estimated date", selection: $estimatedDate)
+            TextField("Enter task title...", text: $title)
                 .padding()
+                .background(content: { RoundedRectangle(cornerRadius: 8).fill(Color.gray.opacity(0.2)) })
+            DatePicker("Estimated date", selection: $estimatedDate)
+                .datePickerStyle(.compact)
+                .padding(.vertical)
+                .foregroundStyle(.secondary)
             Text("Description")
                 .font(.title)
                 .fontWeight(.bold)
-            
-            TextField("Enter task description", text: $description)
-                .padding(.horizontal)
+            TextField("Type description of a task here...", text: $description, axis: .vertical)
+                .frame(height:400, alignment: .top)
+                .padding()
+                .background{
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.2))
+                        .cornerRadius(8)
+                        
+                }
+              
+           
+               
             Spacer()
             
         }
         .padding(.horizontal)
-        .presentationDetents([.medium])
+        .presentationDetents([.large])
         .presentationBackground(.ultraThinMaterial)
     }
 
 }
+extension TaskCreationView {
+    init( _ task: TaskItem) {
+        self.task = task
+        self.estimatedDate = task.date!
+        self.description = task.details!
+        self.title = task.title!
+        self.priority = Int(task.priority)
+        
+        print("Created using a task")
+    }
+    
+}
 
 #Preview {
-    TaskCreationView(estimatedDate: Date())
+    TaskCreationView(title: "", description: "",estimatedDate: Date())
 }

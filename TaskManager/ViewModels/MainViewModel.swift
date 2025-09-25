@@ -9,11 +9,12 @@ import SwiftUI
 import CoreData
 
 class MainViewModel: ObservableObject {
-    @Published var selectedDate: Date = Date()
+   
     var calendar = Calendar.current
     var date: Date = Date()
+    var taskToEdit: TaskItem?
     @Published var weekend: [WeekDay] = []
-    
+    @Published var selectedDate: Date = Date()
     func buildSortDescriptors(for parameter: String) -> [NSSortDescriptor] {
         return [NSSortDescriptor(key: parameter, ascending: true, selector: #selector (NSString.localizedCompare))]
     }
@@ -32,11 +33,13 @@ class MainViewModel: ObservableObject {
     }
     func getWeekDays(to date: Date)  {
         var daysOfWeek: [WeekDay] = []
+        let beginingOfWeek = calendar.dateComponents([.calendar,.yearForWeekOfYear, .weekOfYear], from: date).date!
         for index in 0..<7 {
             var weekDay = WeekDay()
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "EE"
-            let date = calendar.date(byAdding: .day, value: index, to: date)!
+            
+            let date = calendar.date(byAdding: .day, value: index, to: beginingOfWeek)!
             let dateName = calendar.dateComponents([.day], from: date).day!
             weekDay.dateValue = date
             weekDay.name = dateFormatter.string(from: date).uppercased()
@@ -78,6 +81,23 @@ class MainViewModel: ObservableObject {
         selectedDate =  calendar.date(byAdding: .day, value: 7, to: selectedDate)!
         weekend = daysOfWeek
     }
+//    func getSelectedWeek()  {
+//        var daysOfWeek: [WeekDay] = []
+//        let beginingOfWeek = calendar.dateComponents([.calendar,.yearForWeekOfYear, .weekOfYear], from: selectedDate).date!
+//        for index in 0..<7 {
+//            var weekDay = WeekDay()
+//            let dateFormatter = DateFormatter()
+//            dateFormatter.dateFormat = "EE"
+//            
+//            let date = calendar.date(byAdding: .day, value: index, to: beginingOfWeek)!
+//            let dateName = calendar.dateComponents([.day], from: date).day!
+//            weekDay.dateValue = date
+//            weekDay.name = dateFormatter.string(from: date).uppercased()
+//            weekDay.dateName = dateName
+//            daysOfWeek.append(weekDay)
+//        }
+//        weekend = daysOfWeek
+//    }
     func returnSelectedMonth() -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMMM"

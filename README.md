@@ -14,9 +14,6 @@ This Task Manager project for IOS developed in SwiftUI with CoreData. Its porpos
   
 
 https://github.com/user-attachments/assets/09c9a1b5-3fa9-4bd2-811c-332b5cd4c319
-
-
-
 https://github.com/user-attachments/assets/5b634915-7baa-479e-9a86-360f77a45ccc
 
 
